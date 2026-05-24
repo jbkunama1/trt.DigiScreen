@@ -1,5 +1,9 @@
 # 🖥️ Digiscreen by La Digitale – Self‑Hosted in Docker
 
+<p align="center">
+  <img src="logo_DigiScreen.png" alt="Digiscreen Logo" width="320" />
+</p>
+
 > An **ultra‑simple**, fully Docker‑based Digiscreen container using the **Ulrich Ivens full package** (ready‑to‑use self‑hosting variant).
 > No cloud dependency. No database. No complex builds on the server.
 
@@ -8,6 +12,7 @@
 [![Nginx](https://img.shields.io/badge/nginx-alpine-009639?style=for-the-badge&logo=nginx&logoColor=white)](https://hub.docker.com/_/nginx)
 [![La Digitale](https://img.shields.io/badge/La_Digitale-Digiscreen-brightgreen?style=for-the-badge)](https://digiscreen.medienzentrenbw.de)
 [![Maintenance](https://img.shields.io/badge/maintained-yes-success?style=for-the-badge)](https://github.com/jbkunama1/trt.DigiScreen)
+[![GitLab Mirror](https://img.shields.io/badge/GitLab-Mirror-FC6D26?style=for-the-badge&logo=gitlab&logoColor=white)](https://gitlab.com/therealteacher_highfishai-group/trt-digi-screen)
 [![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-Docs-222?style=for-the-badge&logo=github)](https://jbkunama1.github.io/trt.DigiScreen/)
 
 ---
@@ -30,7 +35,12 @@ trt.DigiScreen/
 ├── Dockerfile                  # Docker build definition
 ├── docker-compose.yml          # Stack for Portainer / docker compose
 ├── update_digiscreen.sh        # Cron script for weekly re-build
+├── logo_DigiScreen.png         # Project logo
+├── .gitignore                  # html/ excluded from tracking
+├── LICENSE                     # AGPL-v3
+├── CHANGELOG.md                # Version history
 ├── html/                       # ← Extract Digiscreen full package here
+│   ├── .gitkeep
 │   ├── index.html
 │   ├── js/
 │   ├── css/
@@ -38,7 +48,7 @@ trt.DigiScreen/
 │       ├── background.jpg      # ← Your custom background image
 │       └── logo.png            # ← Optional: school logo
 ├── docs/
-│   └── index.html              # GitHub Pages documentation
+│   └── index.html              # GitHub Pages (bilingual DE/EN)
 └── README_EN.md
 ```
 
@@ -81,10 +91,7 @@ unzip ~/Downloads/digiscreen-*.zip -d /opt/digiscreen/html
 ### 4️⃣ Set your own background image
 
 ```bash
-# Replace background image
 cp /path/to/your/background.jpg /opt/digiscreen/html/assets/background.jpg
-
-# Optional: custom school logo
 cp /path/to/your/logo.png /opt/digiscreen/html/assets/logo.png
 ```
 
@@ -92,48 +99,29 @@ cp /path/to/your/logo.png /opt/digiscreen/html/assets/logo.png
 
 ---
 
-### 5️⃣ Clone this repo (get all config files)
+### 5️⃣ Clone repo & build image
 
 ```bash
-cd /opt
-git clone https://github.com/jbkunama1/trt.DigiScreen.git digiscreen
-cd digiscreen
-```
-
----
-
-### 6️⃣ Build Docker image
-
-```bash
+git clone https://github.com/jbkunama1/trt.DigiScreen.git /opt/digiscreen
+cd /opt/digiscreen
 docker compose build --no-cache
 ```
 
 ---
 
-### 7️⃣ Start container
+### 6️⃣ Start container
 
 ```bash
 docker compose up -d
-```
-
-✅ Digiscreen is now available at:
-```
-http://SERVER_IP:8080
+# Available at: http://SERVER_IP:8080
 ```
 
 ---
 
 ## 🔄 Weekly Automatic Update
 
-### Make script executable
-
 ```bash
 chmod +x /opt/digiscreen/update_digiscreen.sh
-```
-
-### Set up cron job (every Sunday at 03:00 AM)
-
-```bash
 sudo crontab -e
 ```
 
@@ -142,31 +130,24 @@ Add entry:
 0 3 * * 0 /opt/digiscreen/update_digiscreen.sh >> /var/log/digiscreen-update.log 2>&1
 ```
 
-> 📋 Log file location: `/var/log/digiscreen-update.log`
+> 📋 Log: `/var/log/digiscreen-update.log`
 
 ---
 
-## ⚙️ Portainer Stack Setup
+## ⚙️ Portainer Stack
 
-1. Open **Portainer** → **Stacks** → **Add stack**
+1. **Portainer** → **Stacks** → **Add stack**
 2. Name: `digiscreen`
-3. Select: `Upload` or `Web editor`
-4. Upload `docker-compose.yml` (or paste the content)
-5. Click **Deploy the stack**
-
-> 🔁 For re‑builds: stop stack → rebuild image → restart stack
-> or just let the cron script handle it automatically.
+3. Upload `docker-compose.yml` → **Deploy the stack**
 
 ---
 
-## 🖼️ Assets Structure
+## 🦊 GitLab Mirror
 
-```text
-html/assets/
-├── background.jpg     ← your custom background image
-├── logo.png           ← optional school logo
-└── ...                ← original Digiscreen assets remain
-```
+This repo is automatically mirrored to GitLab on every push to `main`.
+The mirror lands on branch **`github-mirror`** – your original GitLab `main` is never touched.
+
+🔗 [gitlab.com/therealteacher_highfishai-group/trt-digi-screen](https://gitlab.com/therealteacher_highfishai-group/trt-digi-screen)
 
 ---
 
@@ -175,9 +156,10 @@ html/assets/
 | Resource | Link |
 |---|---|
 | 🌐 Digiscreen BW (Medienzentren) | [digiscreen.medienzentrenbw.de](https://digiscreen.medienzentrenbw.de) |
-| 📦 Ulrich Ivens Full Package (GitLab) | [gitlab.eldshort.de/uivens/digiscreen](https://gitlab.eldshort.de/uivens/digiscreen) |
+| 📦 Ulrich Ivens Full Package | [gitlab.eldshort.de/uivens/digiscreen](https://gitlab.eldshort.de/uivens/digiscreen) |
 | 📘 ZUM‑Digiscreen | [digiscreen.zum.de](https://digiscreen.zum.de) |
 | 🐳 Docker Nginx Alpine | [hub.docker.com/_/nginx](https://hub.docker.com/_/nginx) |
+| 🦊 GitLab Mirror | [gitlab.com/therealteacher.../trt-digi-screen](https://gitlab.com/therealteacher_highfishai-group/trt-digi-screen) |
 | 📄 GitHub Pages Docs | [jbkunama1.github.io/trt.DigiScreen](https://jbkunama1.github.io/trt.DigiScreen/) |
 
 ---
@@ -192,4 +174,8 @@ The Digiscreen full package itself is licensed under **AGPL‑v3** by Ulrich Ive
 <p align="center">
   Made with ❤️ for teachers in Baden‑Württemberg 🇩🇪<br>
   <a href="https://jbkunama1.github.io/trt.DigiScreen/">📄 Documentation (GitHub Pages)</a>
+  &nbsp;·&nbsp;
+  <a href="https://gitlab.com/therealteacher_highfishai-group/trt-digi-screen">🦊 GitLab Mirror</a>
+  &nbsp;·&nbsp;
+  <a href="README.md">🇩🇪 Deutsche Version</a>
 </p>

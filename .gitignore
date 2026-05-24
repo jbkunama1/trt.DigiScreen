@@ -1,0 +1,32 @@
+# =============================================================
+# .gitignore – trt.DigiScreen
+# Das Digiscreen-Vollpaket wird LOKAL entpackt, nicht ins Repo gepusht
+# =============================================================
+
+# Digiscreen-Vollpaket (lokal entpackt)
+html/*
+!html/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Editor
+.vscode/
+.idea/
+*.code-workspace
+
+# Logs
+*.log
+logs/
+
+# Docker
+.env
+.env.*
+!.env.example
+
+# Temp
+tmp/
+.tmp/

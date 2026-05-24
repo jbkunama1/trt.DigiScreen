@@ -1,69 +1,39 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" data-lang="de">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🖥️ Digiscreen – Self-Hosted Docker Setup</title>
-  <meta name="description" content="Digiscreen by La Digitale – vollständig in Docker laufend, mit eigenem Hintergrundbild und wöchentlichem Re-Build." />
+  <meta name="description" content="Digiscreen by La Digitale – Self-Hosted Docker Setup with custom background, weekly auto-update and Portainer stack." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --bg:#0d1117;--surface:#161b22;--surface2:#21262d;
-      --border:#30363d;--text:#e6edf3;--muted:#8b949e;
-      --accent:#58a6ff;--green:#3fb950;--orange:#d29922;--purple:#bc8cff;
-    }
+    :root{--bg:#0d1117;--surface:#161b22;--surface2:#21262d;--border:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--orange:#d29922;--purple:#bc8cff;}
     *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;}
-    header{
-      background:linear-gradient(135deg,#1a237e 0%,#0d47a1 50%,#006064 100%);
-      padding:3rem 2rem 2.5rem;text-align:center;
-      border-bottom:1px solid var(--border);position:relative;
-    }
+    header{background:linear-gradient(135deg,#1a237e 0%,#0d47a1 50%,#006064 100%);padding:3rem 2rem 2.5rem;text-align:center;border-bottom:1px solid var(--border);position:relative;}
     header h1{font-size:2.4rem;font-weight:700;margin-bottom:.5rem;}
-    header p{color:rgba(255,255,255,.8);font-size:1.1rem;max-width:600px;margin:0 auto 1.5rem;}
+    header p{color:rgba(255,255,255,.8);font-size:1.1rem;max-width:640px;margin:0 auto 1.5rem;}
     .badges{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-top:1rem;}
     .badges img{height:24px;border-radius:4px;}
     .container{max-width:860px;margin:0 auto;padding:2rem 1.5rem;}
     .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:2rem 0;}
-    .feature-card{
-      background:var(--surface);border:1px solid var(--border);
-      border-radius:10px;padding:1.2rem 1rem;text-align:center;
-      transition:border-color .2s,transform .2s;
-    }
+    .feature-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.2rem 1rem;text-align:center;transition:border-color .2s,transform .2s;}
     .feature-card:hover{border-color:var(--accent);transform:translateY(-2px);}
     .feature-card .icon{font-size:2rem;margin-bottom:.5rem;}
     .feature-card h3{font-size:.95rem;color:var(--accent);margin-bottom:.3rem;}
     .feature-card p{font-size:.85rem;color:var(--muted);}
     h2{font-size:1.4rem;font-weight:700;margin:2rem 0 .8rem;padding-bottom:.4rem;border-bottom:1px solid var(--border);color:var(--accent);}
-    pre{
-      background:var(--surface2);border:1px solid var(--border);
-      border-radius:8px;padding:1.2rem 1.4rem;overflow-x:auto;
-      font-family:'JetBrains Mono',monospace;font-size:.88rem;
-      line-height:1.6;margin:.8rem 0 1.2rem;color:#c9d1d9;
-    }
+    pre{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:1.2rem 1.4rem;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:.88rem;line-height:1.6;margin:.8rem 0 1.2rem;color:#c9d1d9;}
     code{font-family:'JetBrains Mono',monospace;background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:.88em;color:var(--purple);}
     .steps{counter-reset:step-counter;}
-    .step{
-      background:var(--surface);border:1px solid var(--border);
-      border-left:4px solid var(--accent);border-radius:8px;
-      padding:1.2rem 1.4rem;margin-bottom:1.2rem;counter-increment:step-counter;overflow:hidden;
-    }
-    .step::before{
-      content:counter(step-counter);display:inline-flex;align-items:center;justify-content:center;
-      width:28px;height:28px;background:var(--accent);color:#000;
-      border-radius:50%;font-weight:700;font-size:.85rem;
-      float:left;margin-right:.8rem;
-    }
-    .step h3{font-size:1rem;margin-bottom:.5rem;color:var(--text);}
+    .step{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:8px;padding:1.2rem 1.4rem;margin-bottom:1.2rem;counter-increment:step-counter;overflow:hidden;}
+    .step::before{content:counter(step-counter);display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--accent);color:#000;border-radius:50%;font-weight:700;font-size:.85rem;float:left;margin-right:.8rem;}
+    .step h3{font-size:1rem;margin-bottom:.5rem;}
     .step p{font-size:.9rem;color:var(--muted);}
     .link-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.8rem;margin:1rem 0;}
-    .link-card{
-      background:var(--surface);border:1px solid var(--border);
-      border-radius:8px;padding:.9rem 1rem;text-decoration:none;
-      color:var(--text);transition:border-color .2s;display:block;
-    }
+    .link-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.9rem 1rem;text-decoration:none;color:var(--text);transition:border-color .2s;display:block;}
     .link-card:hover{border-color:var(--green);}
     .link-card .label{font-size:.78rem;color:var(--muted);margin-bottom:.2rem;}
     .link-card .name{font-size:.95rem;font-weight:600;color:var(--accent);}
@@ -71,89 +41,137 @@
     footer{text-align:center;padding:2.5rem 1rem;border-top:1px solid var(--border);color:var(--muted);font-size:.88rem;margin-top:3rem;}
     footer a{color:var(--accent);text-decoration:none;}
     footer a:hover{text-decoration:underline;}
+    /* Language toggle */
     .lang-toggle{position:absolute;top:1.2rem;right:1.5rem;display:flex;gap:.4rem;}
-    .lang-toggle a{
-      background:rgba(255,255,255,.15);color:white;padding:.3rem .7rem;
-      border-radius:20px;text-decoration:none;font-size:.8rem;font-weight:600;transition:background .2s;
-    }
-    .lang-toggle a:hover{background:rgba(255,255,255,.3);}
-    @media(max-width:600px){
-      header h1{font-size:1.7rem;}
-      .lang-toggle{position:static;margin-bottom:1rem;justify-content:center;}
-    }
+    .lang-toggle button{background:rgba(255,255,255,.15);color:white;border:none;padding:.35rem .75rem;border-radius:20px;cursor:pointer;font-size:.82rem;font-weight:600;transition:background .2s;font-family:inherit;}
+    .lang-toggle button:hover,.lang-toggle button.active{background:rgba(255,255,255,.35);}
+    /* i18n: hide/show */
+    [data-lang="de"] .en{display:none;}
+    [data-lang="en"] .de{display:none;}
+    @media(max-width:600px){header h1{font-size:1.7rem;}.lang-toggle{position:static;margin-bottom:1rem;justify-content:center;}}
   </style>
 </head>
 <body>
 <header>
   <div class="lang-toggle">
-    <a href="#">🇩🇪 DE</a>
-    <a href="https://github.com/jbkunama1/trt.DigiScreen/blob/main/README_EN.md">🇬🇧 EN</a>
+    <button id="btn-de" class="active" onclick="setLang('de')">&#127465;&#127466; DE</button>
+    <button id="btn-en" onclick="setLang('en')">&#127468;&#127463; EN</button>
   </div>
   <h1>🖥️ Digiscreen by La Digitale</h1>
-  <p>Self-Hosted Docker Setup · Ulrich-Vollpaket · Eigenes Hintergrundbild · Automatisches Update</p>
+  <p class="de">Self-Hosted Docker Setup &middot; Ulrich-Vollpaket &middot; Eigenes Hintergrundbild &middot; Automatisches Update</p>
+  <p class="en">Self-Hosted Docker Setup &middot; Ulrich Full Package &middot; Custom Background &middot; Automatic Update</p>
   <div class="badges">
     <img src="https://img.shields.io/badge/license-AGPL--v3-blue?style=flat-square&logo=gnu" alt="License" />
     <img src="https://img.shields.io/badge/docker-ready-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker" />
     <img src="https://img.shields.io/badge/nginx-alpine-009639?style=flat-square&logo=nginx&logoColor=white" alt="Nginx" />
     <img src="https://img.shields.io/badge/La_Digitale-Digiscreen-brightgreen?style=flat-square" alt="La Digitale" />
+    <img src="https://img.shields.io/badge/GitLab-Mirror-FC6D26?style=flat-square&logo=gitlab&logoColor=white" alt="GitLab" />
     <img src="https://img.shields.io/badge/maintained-yes-success?style=flat-square" alt="Maintained" />
   </div>
 </header>
 
 <div class="container">
-  <h2>🎯 Features</h2>
+
+  <!-- FEATURES -->
+  <h2 class="de">🎯 Features</h2>
+  <h2 class="en">🎯 Features</h2>
   <div class="features">
-    <div class="feature-card"><div class="icon">🐳</div><h3>Single Container</h3><p>Nginx + Digiscreen Vollpaket in einem Docker-Image</p></div>
-    <div class="feature-card"><div class="icon">🖼️</div><h3>Eigenes Hintergrundbild</h3><p>Foto in <code>html/assets/</code> legen – fertig</p></div>
-    <div class="feature-card"><div class="icon">🔄</div><h3>Wöchentliches Update</h3><p>Cron-Script baut Image neu und startet Container</p></div>
-    <div class="feature-card"><div class="icon">🧩</div><h3>Portainer-ready</h3><p>Stack-Datei direkt importierbar</p></div>
-    <div class="feature-card"><div class="icon">🚀</div><h3>DietPi / Debian</h3><p>Kein Node.js auf dem Server nötig</p></div>
-    <div class="feature-card"><div class="icon">📱</div><h3>Responsive</h3><p>Browser, Tablet und Beamer</p></div>
+    <div class="feature-card"><div class="icon">🐳</div><h3 class="de">Single Container</h3><h3 class="en">Single Container</h3><p class="de">Nginx + Digiscreen Vollpaket in einem Image</p><p class="en">Nginx + full Digiscreen package in one image</p></div>
+    <div class="feature-card"><div class="icon">🖼️</div><h3 class="de">Eigenes Hintergrundbild</h3><h3 class="en">Custom Background</h3><p class="de">Foto in <code>html/assets/</code> legen</p><p class="en">Place image in <code>html/assets/</code></p></div>
+    <div class="feature-card"><div class="icon">🔄</div><h3 class="de">Wöchentliches Update</h3><h3 class="en">Weekly Update</h3><p class="de">Cron-Script baut Image neu und startet Container</p><p class="en">Cron script rebuilds image and restarts container</p></div>
+    <div class="feature-card"><div class="icon">🧩</div><h3>Portainer-ready</h3><p class="de">Stack-Datei direkt importierbar</p><p class="en">Stack file directly importable</p></div>
+    <div class="feature-card"><div class="icon">🦊</div><h3>GitLab Mirror</h3><p class="de">Auto-Mirror bei jedem Push auf Branch <code>github-mirror</code></p><p class="en">Auto-mirror on every push to branch <code>github-mirror</code></p></div>
+    <div class="feature-card"><div class="icon">🚀</div><h3>DietPi / Debian</h3><p class="de">Kein Node.js nötig</p><p class="en">No Node.js required</p></div>
   </div>
 
-  <h2>📦 Setup</h2>
+  <!-- SETUP -->
+  <h2 class="de">📦 Setup</h2>
+  <h2 class="en">📦 Setup</h2>
   <div class="steps">
-    <div class="step"><h3>Projektordner anlegen</h3><pre>mkdir -p /opt/digiscreen/{html,assets}
-cd /opt/digiscreen</pre></div>
     <div class="step">
-      <h3>Digiscreen-Vollpaket entpacken</h3>
-      <p>ZIP von <a href="https://gitlab.eldshort.de/uivens/digiscreen/-/tree/main/releases" style="color:var(--accent)">gitlab.eldshort.de</a> herunterladen, dann:</p>
+      <h3 class="de">Projektordner anlegen</h3><h3 class="en">Create project folder</h3>
+      <pre>mkdir -p /opt/digiscreen/{html,assets}
+cd /opt/digiscreen</pre>
+    </div>
+    <div class="step">
+      <h3 class="de">Digiscreen-Vollpaket entpacken</h3><h3 class="en">Extract Digiscreen package</h3>
+      <p class="de">ZIP von <a href="https://gitlab.eldshort.de/uivens/digiscreen/-/tree/main/releases" style="color:var(--accent)">gitlab.eldshort.de</a> laden:</p>
+      <p class="en">Download ZIP from <a href="https://gitlab.eldshort.de/uivens/digiscreen/-/tree/main/releases" style="color:var(--accent)">gitlab.eldshort.de</a>:</p>
       <pre>unzip ~/Downloads/digiscreen-*.zip -d /opt/digiscreen/html</pre>
     </div>
-    <div class="step"><h3>Eigenes Hintergrundbild einsetzen</h3><pre>cp /pfad/zu/background.jpg /opt/digiscreen/html/assets/background.jpg</pre></div>
-    <div class="step"><h3>Repo klonen &amp; Image bauen</h3><pre>git clone https://github.com/jbkunama1/trt.DigiScreen.git /opt/digiscreen
+    <div class="step">
+      <h3 class="de">Eigenes Hintergrundbild</h3><h3 class="en">Custom background image</h3>
+      <pre>cp /pfad/zu/background.jpg /opt/digiscreen/html/assets/background.jpg</pre>
+    </div>
+    <div class="step">
+      <h3 class="de">Repo klonen &amp; Image bauen</h3><h3 class="en">Clone repo &amp; build image</h3>
+      <pre>git clone https://github.com/jbkunama1/trt.DigiScreen.git /opt/digiscreen
 cd /opt/digiscreen
-docker compose build --no-cache</pre></div>
-    <div class="step"><h3>Container starten</h3><pre>docker compose up -d
-# http://SERVER_IP:8080</pre></div>
+docker compose build --no-cache</pre>
+    </div>
+    <div class="step">
+      <h3 class="de">Container starten</h3><h3 class="en">Start container</h3>
+      <pre>docker compose up -d
+# http://SERVER_IP:8080</pre>
+    </div>
   </div>
 
-  <h2>🔄 Wöchentliches Update (Cron)</h2>
+  <!-- CRON -->
+  <h2 class="de">🔄 Wöchentliches Update (Cron)</h2>
+  <h2 class="en">🔄 Weekly Update (Cron)</h2>
   <pre>chmod +x /opt/digiscreen/update_digiscreen.sh
 sudo crontab -e</pre>
   <div class="cron-box">
-    <p>⏰ Cron-Eintrag (jeden Sonntag 03:00 Uhr):</p>
+    <p class="de">⏰ Jeden Sonntag 03:00 Uhr:</p>
+    <p class="en">⏰ Every Sunday at 03:00 AM:</p>
     <pre>0 3 * * 0 /opt/digiscreen/update_digiscreen.sh >> /var/log/digiscreen-update.log 2>&amp;1</pre>
   </div>
 
-  <h2>⚙️ Portainer Stack</h2>
-  <p>Portainer → <strong>Stacks</strong> → <strong>Add stack</strong> → <code>docker-compose.yml</code> hochladen → <strong>Deploy the stack</strong>.</p>
+  <!-- PORTAINER -->
+  <h2 class="de">⚙️ Portainer Stack</h2>
+  <h2 class="en">⚙️ Portainer Stack</h2>
+  <p class="de">Portainer → <strong>Stacks</strong> → <strong>Add stack</strong> → <code>docker-compose.yml</code> hochladen → <strong>Deploy</strong>.</p>
+  <p class="en">Portainer → <strong>Stacks</strong> → <strong>Add stack</strong> → upload <code>docker-compose.yml</code> → <strong>Deploy</strong>.</p>
 
-  <h2>🔗 Links</h2>
+  <!-- GITLAB -->
+  <h2>🦊 GitLab Mirror</h2>
+  <p class="de">Bei jedem Push auf <code>main</code> wird automatisch ein Mirror auf GitLab Branch <code>github-mirror</code> gepusht. Dein originaler GitLab-<code>main</code> bleibt unberührt.</p>
+  <p class="en">On every push to <code>main</code>, a mirror is automatically pushed to GitLab branch <code>github-mirror</code>. Your original GitLab <code>main</code> is never touched.</p>
+
+  <!-- LINKS -->
+  <h2 class="de">🔗 Links</h2>
+  <h2 class="en">🔗 Links</h2>
   <div class="link-grid">
     <a class="link-card" href="https://digiscreen.medienzentrenbw.de" target="_blank"><div class="label">🌐 Medienzentren BW</div><div class="name">Digiscreen BW</div></a>
     <a class="link-card" href="https://gitlab.eldshort.de/uivens/digiscreen" target="_blank"><div class="label">📦 GitLab</div><div class="name">Ulrich Ivens Vollpaket</div></a>
     <a class="link-card" href="https://digiscreen.zum.de" target="_blank"><div class="label">📘 ZUM</div><div class="name">Digiscreen ZUM</div></a>
-    <a class="link-card" href="https://github.com/jbkunama1/trt.DigiScreen" target="_blank"><div class="label">🐙 GitHub</div><div class="name">trt.DigiScreen Repo</div></a>
-    <a class="link-card" href="https://github.com/jbkunama1/trt.DigiScreen/blob/main/README_EN.md" target="_blank"><div class="label">🇬🇧 English Docs</div><div class="name">README_EN.md</div></a>
+    <a class="link-card" href="https://github.com/jbkunama1/trt.DigiScreen" target="_blank"><div class="label">🐙 GitHub</div><div class="name">trt.DigiScreen</div></a>
+    <a class="link-card" href="https://gitlab.com/therealteacher_highfishai-group/trt-digi-screen" target="_blank"><div class="label">🦊 GitLab Mirror</div><div class="name">trt-digi-screen</div></a>
     <a class="link-card" href="https://hub.docker.com/_/nginx" target="_blank"><div class="label">🐳 Docker Hub</div><div class="name">Nginx Alpine</div></a>
   </div>
+
 </div>
 
 <footer>
   Made with ❤️ for teachers in Baden-Württemberg 🇩🇪 &nbsp;·&nbsp;
-  <a href="https://github.com/jbkunama1/trt.DigiScreen">GitHub Repo</a> &nbsp;·&nbsp;
-  <a href="https://github.com/jbkunama1/trt.DigiScreen/blob/main/README_EN.md">English Docs</a>
+  <a href="https://github.com/jbkunama1/trt.DigiScreen">GitHub</a> &nbsp;·&nbsp;
+  <a href="https://gitlab.com/therealteacher_highfishai-group/trt-digi-screen">GitLab</a> &nbsp;·&nbsp;
+  <a href="https://github.com/jbkunama1/trt.DigiScreen/blob/main/README_EN.md" class="de">English Docs</a>
+  <a href="https://github.com/jbkunama1/trt.DigiScreen/blob/main/README.md" class="en">Deutsche Doku</a>
 </footer>
+
+<script>
+  function setLang(lang) {
+    document.documentElement.setAttribute('data-lang', lang);
+    document.getElementById('btn-de').classList.toggle('active', lang === 'de');
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  }
+  // Auto-detect browser language on load
+  (function(){
+    const bl = navigator.language || navigator.userLanguage || 'de';
+    if (bl.startsWith('de')) setLang('de');
+    else setLang('en');
+  })();
+</script>
 </body>
 </html>
