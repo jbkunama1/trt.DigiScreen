@@ -21,10 +21,10 @@
 
 - 🐳 **Ein Container** – Nginx + Digiscreen‑Vollpaket komplett in einem Image
 - 🖼️ **Eigene Hintergrundbilder** – einfach in `html/assets/custom/` legen
+- 📱 **Responsive** – optimiert für 1920px, 1024px und 860px Displays
 - 🔄 **Wöchentliches Re‑Build & Restart** via Cron‑Script
 - 🚀 **DietPi / Debian‑ready** – kein Node.js auf dem Server nötig
 - 🧩 **Portainer‑kompatibel** – Stack‑Datei direkt importierbar
-- 📱 **Responsive** – läuft im Browser, Tablet, Beamer
 
 ---
 
@@ -34,6 +34,7 @@
 trt.DigiScreen/
 ├── Dockerfile
 ├── docker-compose.yml
+├── nginx-custom.conf           # Nginx: Sub-Filter + Responsive-Fix
 ├── update_digiscreen.sh
 ├── logo_DigiScreen.png
 ├── .gitignore
@@ -42,13 +43,10 @@ trt.DigiScreen/
 ├── html/
 │   ├── .gitkeep
 │   ├── index.html              ← Digiscreen-Vollpaket (lokal entpackt)
-│   ├── js/
-│   ├── css/
 │   └── assets/
-│       ├── custom/             ← Eigene Hintergrundbilder (im Repo)
-│       │   ├── .gitkeep
-│       │   └── *.jpg / *.png
-│       └── background.jpg      ← Original-Digiscreen-Hintergrund
+│       └── custom/
+│           ├── custom.css      ← Responsive-CSS-Override
+│           └── *.jpg / *.png   ← Eigene Hintergrundbilder
 ├── docs/
 │   └── index.html
 └── README.md
@@ -58,45 +56,39 @@ trt.DigiScreen/
 
 ## 🖼️ Eigene Hintergrundbilder verwenden
 
-Digiscreen unterstützt eigene Hintergrundbilder. Du hast zwei Möglichkeiten:
-
 ### Option A – Einzelnes Bild (Standardhintergrund ersetzen)
-
-Lege dein Bild direkt als `background.jpg` ins Vollpaket:
 
 ```bash
 cp /pfad/zu/deinem/bild.jpg /opt/digiscreen/html/assets/background.jpg
 docker compose restart
 ```
 
-> 💡 Empfohlene Größe: **1920×1080 px**, Format: **JPG oder PNG**
-> Bei Bedarf skalieren: `mogrify -resize 1920x1080^ -gravity Center -extent 1920x1080 -quality 80 bild.jpg`
+> 💡 Empfohlene Größe: **1920×1080 px** – skalieren: `mogrify -resize 1920x1080^ -gravity Center -extent 1920x1080 -quality 80 bild.jpg`
 
-### Option B – Mehrere eigene Bilder dauerhaft im Repo speichern
-
-Lege deine Bilder in `html/assets/custom/` – dieser Ordner ist **vom `.gitignore` ausgenommen** und landet im Repo:
+### Option B – Mehrere Bilder dauerhaft im Repo
 
 ```bash
-# Bilder in den Custom-Ordner kopieren
-cp Designer-1.jpg /opt/digiscreen/html/assets/custom/bg_pixel_classroom.jpg
-cp Designer-2.jpg /opt/digiscreen/html/assets/custom/bg_real_classroom.jpg
-cp Designer-3.jpg /opt/digiscreen/html/assets/custom/bg_japan_classroom.jpg
-
-# Ins Repo aufnehmen
+cp mein-bild.jpg /opt/digiscreen/html/assets/custom/bg_mein_bild.jpg
 git add html/assets/custom/
 git commit -m "🖼️ Add custom background images"
 git push
 ```
 
-Danach im Digiscreen-UI unter **Einstellungen → Hintergrund** das gewünschte Bild auswählen – oder direkt als Standard setzen:
+> 🔁 Nach `git pull` auf dem Server sofort verfügbar – kein manuelles Kopieren nötig.
 
-```bash
-cp /opt/digiscreen/html/assets/custom/bg_pixel_classroom.jpg \
-   /opt/digiscreen/html/assets/background.jpg
-docker compose restart
-```
+---
 
-> 🔁 Nach `git pull` auf dem Server sind alle Custom-Bilder sofort wieder verfügbar – kein manuelles Kopieren nötig.
+## 📱 Responsive Display‑Support
+
+Digiscreen läuft standardmäßig optimiert auf **1920×1080 px**. Über eine injizierte `custom.css` wird die Darstellung auch auf kleineren Screens korrekt skaliert:
+
+| Auflösung | Skalierung | Einsatz |
+|---|---|---|
+| ≥ 1024px | 100% | Beamer, Full-HD Monitor |
+| 860px – 1023px | 85% | Tablet quer, kleinere Monitore |
+| ≤ 860px | 75% | Tablet hoch, Infodisplay |
+
+Die Skalierung erfolgt automatisch via `nginx-custom.conf` + `html/assets/custom/custom.css` – das Vollpaket selbst wird nicht verändert.
 
 ---
 
@@ -106,42 +98,27 @@ docker compose restart
 
 - Docker & Docker‑Compose installiert
 - Server‑Zugriff (root oder docker‑User)
-- Digiscreen‑Vollpaket‑ZIP (Ulrich Ivens) → [Download Releases](https://gitlab.eldshort.de/uivens/digiscreen/-/tree/main/releases)
-- Eigenes Hintergrund‑Bild (empfohlen: mind. **1920×1080 px**, JPEG oder PNG)
+- Digiscreen‑Vollpaket‑ZIP → [Download Releases](https://gitlab.eldshort.de/uivens/digiscreen/-/tree/main/releases)
 
----
-
-### 2️⃣ Projektordner anlegen
-
-```bash
-mkdir -p /opt/digiscreen/{html,assets}
-cd /opt/digiscreen
-```
-
----
-
-### 3️⃣ Digiscreen‑Vollpaket entpacken
-
-```bash
-unzip ~/Downloads/digiscreen-*.zip -d /opt/digiscreen/html
-```
-
----
-
-### 4️⃣ Repo klonen & Image bauen
+### 2️⃣ Repo klonen
 
 ```bash
 git clone https://github.com/jbkunama1/trt.DigiScreen.git /opt/digiscreen
 cd /opt/digiscreen
-docker compose build --no-cache
 ```
 
----
-
-### 5️⃣ Container starten
+### 3️⃣ Vollpaket herunterladen & entpacken
 
 ```bash
-docker compose up -d
+wget "https://gitlab.eldshort.de/uivens/digiscreen/-/raw/main/releases/1.0.8/digiscreen_compiled_1.0.8.zip" \
+     -O digiscreen.zip
+unzip digiscreen.zip -d /opt/digiscreen/html
+```
+
+### 4️⃣ Container starten
+
+```bash
+docker compose up -d --build
 # Erreichbar unter: http://SERVER_IP:8080
 ```
 
@@ -150,18 +127,14 @@ docker compose up -d
 ## 🔄 Wöchentliches automatisches Update
 
 ```bash
-chmod +x /opt/digiscreen/update_digiscreen.sh
+chmod +x update_digiscreen.sh
 sudo crontab -e
-```
-
-Eintrag:
-```cron
-0 3 * * 0 /opt/digiscreen/update_digiscreen.sh >> /var/log/digiscreen-update.log 2>&1
+# 0 3 * * 0 /opt/digiscreen/update_digiscreen.sh >> /var/log/digiscreen-update.log 2>&1
 ```
 
 ---
 
-## ⚙️ Portainer‑Stack einrichten
+## ⚙️ Portainer‑Stack
 
 1. **Portainer** → **Stacks** → **Add stack**
 2. Name: `digiscreen`
@@ -172,7 +145,6 @@ Eintrag:
 ## 🦊 GitLab Mirror
 
 Bei jedem Push auf `main` wird automatisch ein Mirror auf GitLab Branch `github-mirror` gepusht.
-Dein originaler GitLab‑`main` bleibt unberührt.
 
 🔗 [gitlab.com/therealteacher_highfishai-group/trt-digi-screen](https://gitlab.com/therealteacher_highfishai-group/trt-digi-screen)
 
@@ -182,27 +154,27 @@ Dein originaler GitLab‑`main` bleibt unberührt.
 
 | Ressource | Link |
 |---|---|
-| 🌐 Digiscreen BW (Medienzentren) | [digiscreen.medienzentrenbw.de](https://digiscreen.medienzentrenbw.de) |
-| 📦 Ulrich Ivens Vollpaket (GitLab) | [gitlab.eldshort.de/uivens/digiscreen](https://gitlab.eldshort.de/uivens/digiscreen) |
+| 🌐 Digiscreen BW | [digiscreen.medienzentrenbw.de](https://digiscreen.medienzentrenbw.de) |
+| 📦 Ulrich Ivens Vollpaket | [gitlab.eldshort.de/uivens/digiscreen](https://gitlab.eldshort.de/uivens/digiscreen) |
 | 📘 ZUM‑Digiscreen | [digiscreen.zum.de](https://digiscreen.zum.de) |
 | 🐳 Docker Nginx Alpine | [hub.docker.com/_/nginx](https://hub.docker.com/_/nginx) |
 | 🦊 GitLab Mirror | [gitlab.com/therealteacher_highfishai-group/trt-digi-screen](https://gitlab.com/therealteacher_highfishai-group/trt-digi-screen) |
-| 📄 GitHub Pages Docs | [jbkunama1.github.io/trt.DigiScreen](https://jbkunama1.github.io/trt.DigiScreen/) |
+| 📄 GitHub Pages | [jbkunama1.github.io/trt.DigiScreen](https://jbkunama1.github.io/trt.DigiScreen/) |
 
 ---
 
 ## 📝 Lizenz
 
-Dieses Repository enthält **nur die Docker‑/Deployment‑Konfiguration**.
-Das Digiscreen‑Vollpaket selbst unterliegt der **AGPL‑v3‑Lizenz** von Ulrich Ivens / La Digitale.
+Dieses Repository enthält nur die Docker‑/Deployment‑Konfiguration.
+Das Digiscreen‑Vollpaket unterliegt der **AGPL‑v3‑Lizenz** von Ulrich Ivens / La Digitale.
 
 ---
 
 <p align="center">
   Made with ❤️ for teachers in Baden‑Württemberg 🇩🇪<br>
-  <a href="https://jbkunama1.github.io/trt.DigiScreen/">📄 Dokumentation (GitHub Pages)</a>
+  <a href="https://jbkunama1.github.io/trt.DigiScreen/">📄 Dokumentation</a>
   &nbsp;·&nbsp;
-  <a href="https://gitlab.com/therealteacher_highfishai-group/trt-digi-screen">🦊 GitLab Mirror</a>
+  <a href="https://gitlab.com/therealteacher_highfishai-group/trt-digi-screen">🦊 GitLab</a>
   &nbsp;·&nbsp;
-  <a href="README_EN.md">🇬🇧 English Version</a>
+  <a href="README_EN.md">🇬🇧 English</a>
 </p>

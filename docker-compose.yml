@@ -19,6 +19,8 @@ services:
       - ./html:/usr/share/nginx/html:ro
       # Custom-Hintergrundbilder (dauerhaft im Repo, überschreiben Originals)
       - ./html/assets/custom:/usr/share/nginx/html/assets/custom:ro
+      # Nginx Sub-Filter: injiziert custom.css für Responsive-Fix
+      - ./nginx-custom.conf:/etc/nginx/conf.d/default.conf:ro
       - /etc/localtime:/etc/localtime:ro
     labels:
       - "com.digiscreen.description=Digiscreen by La Digitale"

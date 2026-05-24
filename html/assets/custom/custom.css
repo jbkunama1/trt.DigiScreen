@@ -1,0 +1,30 @@
+/* =============================================================
+   Digiscreen – Responsive Fix
+   Injiziert via Nginx sub_filter in jede HTML-Seite
+   ============================================================= */
+
+/* Entferne feste Mindestbreite des Vollpakets */
+body, html, #app {
+  min-width: unset !important;
+  width: 100% !important;
+  overflow-x: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* Skalierung für Displays zwischen 860px und 1023px */
+@media screen and (max-width: 1023px) {
+  body {
+    zoom: 0.85;
+    -moz-transform: scale(0.85);
+    -moz-transform-origin: 0 0;
+  }
+}
+
+/* Skalierung für Displays ab 860px und kleiner */
+@media screen and (max-width: 860px) {
+  body {
+    zoom: 0.75;
+    -moz-transform: scale(0.75);
+    -moz-transform-origin: 0 0;
+  }
+}
