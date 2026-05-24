@@ -15,8 +15,10 @@ services:
     ports:
       - "8080:80"         # Anpassen: z.B. "80:80" oder hinter Traefik/Proxy
     volumes:
-      # Optional: Live-Reload von assets ohne Rebuild (Kommentar entfernen zum Aktivieren)
-      # - ./html/assets:/usr/share/nginx/html/assets:ro
+      # Vollpaket wird lokal entpackt und direkt gemountet (kein Rebuild nötig)
+      - ./html:/usr/share/nginx/html:ro
+      # Custom-Hintergrundbilder (dauerhaft im Repo, überschreiben Originals)
+      - ./html/assets/custom:/usr/share/nginx/html/assets/custom:ro
       - /etc/localtime:/etc/localtime:ro
     labels:
       - "com.digiscreen.description=Digiscreen by La Digitale"
