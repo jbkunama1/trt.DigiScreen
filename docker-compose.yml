@@ -1,0 +1,35 @@
+# =============================================================
+# Digiscreen by La Digitale – Docker Compose Stack
+# Portainer-kompatibel | DietPi / Debian
+# =============================================================
+version: '3.8'
+
+services:
+  digiscreen:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: digiscreen:latest
+    container_name: digiscreen
+    restart: unless-stopped
+    ports:
+      - "8080:80"         # Anpassen: z.B. "80:80" oder hinter Traefik/Proxy
+    volumes:
+      # Optional: Live-Reload von assets ohne Rebuild (Kommentar entfernen zum Aktivieren)
+      # - ./html/assets:/usr/share/nginx/html/assets:ro
+      - /etc/localtime:/etc/localtime:ro
+    labels:
+      - "com.digiscreen.description=Digiscreen by La Digitale"
+      - "com.digiscreen.maintainer=therealteacher"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - digiscreen_net
+
+networks:
+  digiscreen_net:
+    driver: bridge
