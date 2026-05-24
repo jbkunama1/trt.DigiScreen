@@ -1,5 +1,9 @@
 # 🖥️ Digiscreen by La Digitale – Self‑Hosted in Docker
 
+<p align="center">
+  <img src="logo_DigiScreen.png" alt="Digiscreen Logo" width="320" />
+</p>
+
 > Ein **ultra‑einfacher**, vollständig in Docker laufender Digiscreen‑Container auf Basis des **Ulrich‑Vollpakets** (ready‑to‑use Self‑Hosting‑Variante).
 > Kein Cloud‑Zwang. Keine Datenbank. Keine nervigen Builds auf dem Server.
 
@@ -8,6 +12,7 @@
 [![Nginx](https://img.shields.io/badge/nginx-alpine-009639?style=for-the-badge&logo=nginx&logoColor=white)](https://hub.docker.com/_/nginx)
 [![La Digitale](https://img.shields.io/badge/La_Digitale-Digiscreen-brightgreen?style=for-the-badge)](https://digiscreen.medienzentrenbw.de)
 [![Maintenance](https://img.shields.io/badge/maintained-yes-success?style=for-the-badge)](https://github.com/jbkunama1/trt.DigiScreen)
+[![GitLab Mirror](https://img.shields.io/badge/GitLab-Mirror-FC6D26?style=for-the-badge&logo=gitlab&logoColor=white)](https://gitlab.com/therealteacher_highfishai-group/trt-digi-screen)
 [![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-Docs-222?style=for-the-badge&logo=github)](https://jbkunama1.github.io/trt.DigiScreen/)
 
 ---
@@ -30,6 +35,7 @@ trt.DigiScreen/
 ├── Dockerfile                  # Docker‑Build‑Definition
 ├── docker-compose.yml          # Stack für Portainer / docker compose
 ├── update_digiscreen.sh        # Cron‑Script für wöchentlichen Re‑Build
+├── logo_DigiScreen.png         # Projekt‑Logo
 ├── html/                       # ← Hier das Digiscreen‑Vollpaket entpacken
 │   ├── index.html
 │   ├── js/
@@ -178,6 +184,7 @@ html/assets/
 | 📦 Ulrich Ivens Vollpaket (GitLab) | [gitlab.eldshort.de/uivens/digiscreen](https://gitlab.eldshort.de/uivens/digiscreen) |
 | 📘 ZUM‑Digiscreen | [digiscreen.zum.de](https://digiscreen.zum.de) |
 | 🐳 Docker Nginx Alpine | [hub.docker.com/_/nginx](https://hub.docker.com/_/nginx) |
+| 🦊 GitLab Mirror (trt-digi-screen) | [gitlab.com/therealteacher_highfishai-group/trt-digi-screen](https://gitlab.com/therealteacher_highfishai-group/trt-digi-screen) |
 | 📄 GitHub Pages Docs | [jbkunama1.github.io/trt.DigiScreen](https://jbkunama1.github.io/trt.DigiScreen/) |
 
 ---
@@ -192,4 +199,6 @@ Das Digiscreen‑Vollpaket selbst unterliegt der **AGPL‑v3‑Lizenz** von Ulri
 <p align="center">
   Made with ❤️ for teachers in Baden‑Württemberg 🇩🇪<br>
   <a href="https://jbkunama1.github.io/trt.DigiScreen/">📄 Dokumentation (GitHub Pages)</a>
+  &nbsp;·&nbsp;
+  <a href="https://gitlab.com/therealteacher_highfishai-group/trt-digi-screen">🦊 GitLab Mirror</a>
 </p>
