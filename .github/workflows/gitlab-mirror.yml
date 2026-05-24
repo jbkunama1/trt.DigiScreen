@@ -1,0 +1,52 @@
+# =============================================================
+# GitHub Actions: Mirror Push → GitLab (Branch: github-mirror)
+# Trigger: bei jedem Push auf main
+# =============================================================
+name: 🦊 Mirror to GitLab
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:   # Manueller Start über GitHub UI möglich
+
+jobs:
+  mirror-to-gitlab:
+    name: Push to GitLab (github-mirror branch)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # Vollständige Git-History erforderlich für Push
+
+      - name: 🔑 Configure Git Identity
+        run: |
+          git config user.name "github-mirror-bot"
+          git config user.email "github@arbeitermili.eu"
+
+      - name: 🦊 Push to GitLab branch 'github-mirror'
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_MIRROR_TOKEN }}
+        run: |
+          # GitLab Remote mit Token-Auth einrichten
+          git remote add gitlab \
+            https://oauth2:${GITLAB_TOKEN}@gitlab.com/therealteacher_highfishai-group/trt-digi-screen.git
+
+          # Aktuellen main-Stand auf GitLab-Branch 'github-mirror' pushen
+          # --force erlaubt Überschreiben bei Divergenz (bewusst: Backup-Branch)
+          git push gitlab main:github-mirror --force
+
+          echo "✅ Mirror-Push nach GitLab (Branch: github-mirror) erfolgreich!"
+
+      - name: 📊 Mirror Status Summary
+        if: always()
+        run: |
+          echo "====================================="
+          echo "Mirror-Ziel : gitlab.com/therealteacher_highfishai-group/trt-digi-screen"
+          echo "Branch      : github-mirror"
+          echo "Ausgelöst   : ${{ github.event_name }}"
+          echo "Commit SHA  : ${{ github.sha }}"
+          echo "Zeitpunkt   : $(date '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "====================================="
