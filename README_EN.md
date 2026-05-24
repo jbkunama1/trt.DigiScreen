@@ -20,7 +20,7 @@
 ## 🎯 Features
 
 - 🐳 **Single container** – Nginx + full Digiscreen package in one image
-- 🖼️ **Custom background image** – just place it in `html/assets/`
+- 🖼️ **Custom background images** – place them in `html/assets/custom/`
 - 🔄 **Weekly re‑build & restart** via cron script
 - 🚀 **DietPi / Debian‑ready** – no Node.js required on the host
 - 🧩 **Portainer‑compatible** – stack file directly importable
@@ -32,25 +32,71 @@
 
 ```text
 trt.DigiScreen/
-├── Dockerfile                  # Docker build definition
-├── docker-compose.yml          # Stack for Portainer / docker compose
-├── update_digiscreen.sh        # Cron script for weekly re-build
-├── logo_DigiScreen.png         # Project logo
-├── .gitignore                  # html/ excluded from tracking
-├── LICENSE                     # AGPL-v3
-├── CHANGELOG.md                # Version history
-├── html/                       # ← Extract Digiscreen full package here
+├── Dockerfile
+├── docker-compose.yml
+├── update_digiscreen.sh
+├── logo_DigiScreen.png
+├── .gitignore
+├── LICENSE
+├── CHANGELOG.md
+├── html/
 │   ├── .gitkeep
-│   ├── index.html
+│   ├── index.html              ← Digiscreen full package (extracted locally)
 │   ├── js/
 │   ├── css/
 │   └── assets/
-│       ├── background.jpg      # ← Your custom background image
-│       └── logo.png            # ← Optional: school logo
+│       ├── custom/             ← Custom background images (tracked in repo)
+│       │   ├── .gitkeep
+│       │   └── *.jpg / *.png
+│       └── background.jpg      ← Original Digiscreen background
 ├── docs/
-│   └── index.html              # GitHub Pages (bilingual DE/EN)
+│   └── index.html
 └── README_EN.md
 ```
+
+---
+
+## 🖼️ Using Custom Background Images
+
+Digiscreen supports custom background images. You have two options:
+
+### Option A – Single image (replace default background)
+
+Place your image directly as `background.jpg` in the package:
+
+```bash
+cp /path/to/your/image.jpg /opt/digiscreen/html/assets/background.jpg
+docker compose restart
+```
+
+> 💡 Recommended size: **1920×1080 px**, format: **JPG or PNG**
+> Resize if needed: `mogrify -resize 1920x1080^ -gravity Center -extent 1920x1080 -quality 80 image.jpg`
+
+### Option B – Multiple images stored permanently in the repo
+
+Place your images in `html/assets/custom/` – this folder is **excluded from `.gitignore`** and will be tracked in the repo:
+
+```bash
+# Copy images to the custom folder
+cp classroom-pixel.jpg  /opt/digiscreen/html/assets/custom/bg_pixel_classroom.jpg
+cp classroom-real.jpg   /opt/digiscreen/html/assets/custom/bg_real_classroom.jpg
+cp classroom-japan.jpg  /opt/digiscreen/html/assets/custom/bg_japan_classroom.jpg
+
+# Add to repo
+git add html/assets/custom/
+git commit -m "🖼️ Add custom background images"
+git push
+```
+
+Then select the image in the Digiscreen UI under **Settings → Background**, or set it as default:
+
+```bash
+cp /opt/digiscreen/html/assets/custom/bg_pixel_classroom.jpg \
+   /opt/digiscreen/html/assets/background.jpg
+docker compose restart
+```
+
+> 🔁 After `git pull` on the server, all custom images are immediately available – no manual copying needed.
 
 ---
 
@@ -76,30 +122,13 @@ cd /opt/digiscreen
 
 ### 3️⃣ Extract Digiscreen full package
 
-1. Download the latest ZIP from:
-   → [https://gitlab.eldshort.de/uivens/digiscreen/-/tree/main/releases](https://gitlab.eldshort.de/uivens/digiscreen/-/tree/main/releases)
-2. Extract contents directly into `html/`:
-
 ```bash
 unzip ~/Downloads/digiscreen-*.zip -d /opt/digiscreen/html
 ```
 
-> ✅ Your `html/` folder now contains `index.html`, `js/`, `css/`, `assets/` etc.
-
 ---
 
-### 4️⃣ Set your own background image
-
-```bash
-cp /path/to/your/background.jpg /opt/digiscreen/html/assets/background.jpg
-cp /path/to/your/logo.png /opt/digiscreen/html/assets/logo.png
-```
-
-> 💡 Recommended size: **1920×1080 px**, format: **JPG or PNG**
-
----
-
-### 5️⃣ Clone repo & build image
+### 4️⃣ Clone repo & build image
 
 ```bash
 git clone https://github.com/jbkunama1/trt.DigiScreen.git /opt/digiscreen
@@ -109,7 +138,7 @@ docker compose build --no-cache
 
 ---
 
-### 6️⃣ Start container
+### 5️⃣ Start container
 
 ```bash
 docker compose up -d
@@ -123,14 +152,8 @@ docker compose up -d
 ```bash
 chmod +x /opt/digiscreen/update_digiscreen.sh
 sudo crontab -e
+# 0 3 * * 0 /opt/digiscreen/update_digiscreen.sh >> /var/log/digiscreen-update.log 2>&1
 ```
-
-Add entry:
-```cron
-0 3 * * 0 /opt/digiscreen/update_digiscreen.sh >> /var/log/digiscreen-update.log 2>&1
-```
-
-> 📋 Log: `/var/log/digiscreen-update.log`
 
 ---
 

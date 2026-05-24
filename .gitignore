@@ -7,6 +7,15 @@
 html/*
 !html/.gitkeep
 
+# Custom-Hintergrundbilder EINSCHLIESSEN
+!html/assets/
+!html/assets/custom/
+!html/assets/custom/.gitkeep
+!html/assets/custom/*.jpg
+!html/assets/custom/*.jpeg
+!html/assets/custom/*.png
+!html/assets/custom/*.webp
+
 # OS
 .DS_Store
 Thumbs.db
