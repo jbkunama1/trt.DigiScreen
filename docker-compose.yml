@@ -1,23 +1,23 @@
 # =============================================================
 # Digiscreen by La Digitale – Docker Compose Stack
 # Portainer-kompatibel | DietPi / Debian
+# Image wird von GHCR (ghcr.io) gezogen – kein lokaler Build!
+# Neues Image erscheint automatisch bei jedem Push auf main.
 # =============================================================
 version: '3.8'
 
 services:
   digiscreen:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: digiscreen:latest
+    # Automatisch gebautes Image aus dem GitHub Container Registry
+    # (Workflow: .github/workflows/docker-build.yml)
+    image: ghcr.io/jbkunama1/trt.DigiScreen:latest
     container_name: digiscreen
     restart: unless-stopped
     ports:
       - "8080:80"         # Anpassen: z.B. "80:80" oder hinter Traefik/Proxy
     volumes:
-      # Vollpaket wird lokal entpackt und direkt gemountet (kein Rebuild nötig)
-      - ./html:/usr/share/nginx/html:ro
-      # Custom-Hintergrundbilder (dauerhaft im Repo, überschreiben Originals)
+      # Custom-Hintergrundbilder (dauerhaft auf dem Server, überschreiben Originals)
+      # → Hier einfach deine Bilder in ./html/assets/custom/ legen, Container neustarten.
       - ./html/assets/custom:/usr/share/nginx/html/assets/custom:ro
       # Nginx Sub-Filter: injiziert custom.css für Responsive-Fix
       - ./nginx-custom.conf:/etc/nginx/conf.d/default.conf:ro

@@ -19,12 +19,13 @@
 
 ## 🎯 Features
 
-- 🐳 **Ein Container** – Nginx + Digiscreen‑Vollpaket komplett in einem Image
-- 🖼️ **Eigene Hintergrundbilder** – einfach in `html/assets/custom/` legen
-- 📱 **Responsive** – optimiert für 1920px, 1024px und 860px Displays
-- 🔄 **Wöchentliches Re‑Build & Restart** via Cron‑Script
-- 🚀 **DietPi / Debian‑ready** – kein Node.js auf dem Server nötig
-- 🧩 **Portainer‑kompatibel** – Stack‑Datei direkt importierbar
+- 🐳 **Ein Container** – Nginx + Digiscreen‑Vollpaket komplett im Image
+- 🚀 **Automatisches Image‑Build** – in GitHub Actions, gepusht nach GHCR
+- 🖼️ **Eigene Hintergrundbilder** – einfach in `html/assets/custom/` legen (Bind‑Mount)
+- 📱 **Responsive** – optimiert für 1920px, 1024px und 860px Displays (Patch im Build)
+- 🔄 **Automatische Updates** – Cron-Script oder Watchtower zieht neues GHCR-Image
+- 🎛️ **Portainer‑kompatibel** – Stack-Image direkt von ghcr.io, kein lokaler Build
+- 🧱 **DietPi / Debian‑ready** – weder Node.js noch Build-Tools auf dem Server nötig
 
 ---
 
@@ -33,20 +34,21 @@
 ```text
 trt.DigiScreen/
 ├── Dockerfile
-├── docker-compose.yml
+├── docker-compose.yml        # GHCR-Image + custom-Bilder-Mount
 ├── nginx-custom.conf           # Nginx: Sub-Filter + Responsive-Fix
-├── update_digiscreen.sh
+├── update_digiscreen.sh        # Pull von GHCR + Restart
 ├── logo_DigiScreen.png
 ├── .gitignore
 ├── LICENSE
 ├── CHANGELOG.md
+├── .github/
+│   └── workflows/
+│       ├── docker-build.yml    # GHCR-Build & Push (auto)
+│       └── gitlab-mirror.yml   # Mirror nach GitLab
 ├── html/
-│   ├── .gitkeep
-│   ├── index.html              ← Digiscreen-Vollpaket (lokal entpackt)
-│   └── assets/
-│       └── custom/
-│           ├── custom.css      ← Responsive-CSS-Override
-│           └── *.jpg / *.png   ← Eigene Hintergrundbilder
+│   └── assets/custom/          # Eigene Hintergrundbilder (Bind-Mount)
+│       ├── custom.css          # Responsive-CSS-Override
+│       └── *.jpg / *.png       # Eigene Hintergrundbilder
 ├── docs/
 │   └── index.html
 └── README.md
@@ -56,25 +58,20 @@ trt.DigiScreen/
 
 ## 🖼️ Eigene Hintergrundbilder verwenden
 
-### Option A – Einzelnes Bild (Standardhintergrund ersetzen)
+Hintergrundbilder sind als **Bind-Mount** in `./html/assets/custom/` ausgelagert – sie werden MOUNTED, nicht ins Image gebacken. So tauschst du sie jederzeit, ohne einen neuen Build:
 
 ```bash
-cp /pfad/zu/deinem/bild.jpg /opt/digiscreen/html/assets/background.jpg
+# Bild (1920×1080 empfohlen) einfach in den Mount-Ordner legen
+cp /pfad/zu/deinem/bild.jpg /opt/digiscreen/html/assets/custom/background.jpg
+
+# Container neu starten (Mount wird neu gelesen)
 docker compose restart
 ```
 
-> 💡 Empfohlene Größe: **1920×1080 px** – skalieren: `mogrify -resize 1920x1080^ -gravity Center -extent 1920x1080 -quality 80 bild.jpg`
+> 💡 Empfohlene Größe: **1920×1080 px** – skalieren:
+> `mogrify -resize 1920x1080^ -gravity Center -extent 1920x1080 -quality 80 bild.jpg`
 
-### Option B – Mehrere Bilder dauerhaft im Repo
-
-```bash
-cp mein-bild.jpg /opt/digiscreen/html/assets/custom/bg_mein_bild.jpg
-git add html/assets/custom/
-git commit -m "🖼️ Add custom background images"
-git push
-```
-
-> 🔁 Nach `git pull` auf dem Server sofort verfügbar – kein manuelles Kopieren nötig.
+Der Mount-Ordner liegt auf dem **Server**, nicht im Repo – dadurch bleiben deine Bilder privat und ein `git pull`/Image-Update löscht sie nie. Der Docker-Volume-Mount `./html/assets/custom` bleibt dabei bestehen, auch wenn das Image neu gezogen wird.
 
 ---
 
@@ -96,49 +93,83 @@ Die Skalierung erfolgt automatisch via `nginx-custom.conf` + `html/assets/custom
 
 ### 1️⃣ Voraussetzungen
 
-- Docker & Docker‑Compose installiert
-- Server‑Zugriff (root oder docker‑User)
-- Digiscreen‑Vollpaket‑ZIP → [Download Releases](https://gitlab.eldshort.de/uivens/digiscreen/-/tree/main/releases)
+- Docker & Docker-Compose installiert
+- Server-Zugriff (root oder docker-User)
+- Docker-Compose-Datei (dieses Repo)
 
-### 2️⃣ Repo klonen
+### 2️⃣ Repo klonen (nur Config, kein Vollpaket nötig!)
 
 ```bash
 git clone https://github.com/jbkunama1/trt.DigiScreen.git /opt/digiscreen
+mkdir -p /opt/digiscreen/html/assets/custom
 cd /opt/digiscreen
 ```
 
-### 3️⃣ Vollpaket herunterladen & entpacken
+> ℹ️ Das Digiscreen-Vollpaket brauchst du NICHT mehr manuell laden – es wird
+> automatisch in der GitHub Actions-CI in ein GHCR-Image gebacken und von dort geholt.
+
+### 3️⃣ Container starten (holt Image von GHCR)
 
 ```bash
-wget "https://gitlab.eldshort.de/uivens/digiscreen/-/raw/main/releases/1.0.8/digiscreen_compiled_1.0.8.zip" \
-     -O digiscreen.zip
-unzip digiscreen.zip -d /opt/digiscreen/html
-```
-
-### 4️⃣ Container starten
-
-```bash
-docker compose up -d --build
+docker compose up -d
 # Erreichbar unter: http://SERVER_IP:8080
 ```
 
 ---
 
-## 🔄 Wöchentliches automatisches Update
+## 🔄 Automatische Updates (GHCR + CI)
+
+Das Image wird **automatisch in GitHub Actions gebaut** (bei jedem Push auf `main` + wöchentlicher Schedule) und nach **ghcr.io/jbkunama1/trt.DigiScreen** gepusht.
+
+Der Server muss also **nichts mehr bauen** – er zieht nur noch fertige Images.
 
 ```bash
+# Skript auf dem Server ausführbar machen
 chmod +x update_digiscreen.sh
+
+# Wöchentlich (Sonntag 03:00) auf neuestes GHCR-Image updaten
 sudo crontab -e
 # 0 3 * * 0 /opt/digiscreen/update_digiscreen.sh >> /var/log/digiscreen-update.log 2>&1
 ```
 
+Das Skript macht: `git pull` → `docker pull ghcr.io/…` → `docker compose up -d`.
+
+### Optionale Alternative: Watchtower (vollautomatisch)
+
+Watchtower zieht automatisch neue GHCR-Images, sobald sie erscheinen (kein Cron nötig):
+
+```yaml
+watchtower:
+  image: containrrr/watchtower
+  container_name: watchtower
+  restart: unless-stopped
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+  environment:
+    WATCHTOWER_CLEANUP: "true"
+    WATCHTOWER_SCHEDULE: "0 0 3 * * 0"   # täglich 03:00 prüfen
+  networks:
+    - digiscreen_net
+```
+
+> ⚠️ Watchtower aktualisiert ALLE Container mit `watchtower` Label-Verhalten. Füge dem
+> `digiscreen`-Service `watchtower.enable: "true"` als Label hinzu, falls du es steuern willst.
+
 ---
 
-## ⚙️ Portainer‑Stack
+## ⚙️ Portainer‑Stack (zieht Image von GHCR)
 
 1. **Portainer** → **Stacks** → **Add stack**
 2. Name: `digiscreen`
 3. `docker-compose.yml` hochladen → **Deploy the stack**
+
+Der Stack referenziert `ghcr.io/jbkunama1/trt.DigiScreen:latest` – es wird **kein lokaler Build** gemacht, sondern das fertige Image von GHCR gezogen.
+
+> ℹ️ **Wichtig für den ersten Pull:** Wenn du Portainer/Runner nutzt, die gegen
+> `ghcr.io` keine anonymen Pulls erlauben, logge dich einmalig ein:
+> `docker login ghcr.io -u <dein-gh-username>` mit einem Personal Access Token
+> (Scope: `read:packages`). Für öffentliche Images ist das nur nötig, wenn du
+> private Images ziehst.
 
 ---
 

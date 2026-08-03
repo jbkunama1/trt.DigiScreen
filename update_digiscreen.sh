@@ -23,52 +23,25 @@ if [ -d ".git" ]; then
   git pull origin main
 fi
 
+# Neues Image von GHCR ziehen (statt lokal zu bauen)
+echo "[INFO] Image von GHCR ziehen..."
+docker pull ghcr.io/jbkunama1/trt.DigiScreen:latest
+
 # Altes Image stoppen
 echo "[INFO] Container stoppen..."
 docker compose down
-
-# Neues Image bauen (kein Cache)
-echo "[INFO] Image neu bauen (--no-cache)..."
-docker compose build --no-cache
 
 # Container neu starten
 echo "[INFO] Container starten..."
 docker compose up -d
 
 # =============================================================
-# Responsive-Patch: 1024px-Sperre auf 600px senken
-# Wird nach jedem Update neu angewendet da JS-Dateien sich ändern
+# Hinweis: Der Responsive-Patch (1024px → 600px) wird jetzt
+# automatisch im GitHub-Actions-Build auf das Image angewendet.
+# Kein Laufzeit-Patch mehr nötig – das Vollpaket ist nur noch
+# im GHCR-Image, nicht mehr lokal unter html/.
 # =============================================================
-echo "[INFO] Suche Digiscreen JS-Hauptdatei für Responsive-Patch..."
-
-JS_FILE=$(find "$PROJECT_DIR/html/static/assets/" -name "index-*.js" ! -name "*.bak" 2>/dev/null | head -1)
-
-if [ -z "$JS_FILE" ]; then
-  echo "[WARNUNG] JS-Hauptdatei nicht gefunden – Responsive-Patch übersprungen."
-else
-  echo "[INFO] Patche: $JS_FILE"
-
-  # Backup anlegen
-  cp "$JS_FILE" "${JS_FILE}.bak"
-
-  # JS-Check: Fensterbreiten-Schwellenwert 1024 → 600
-  sed -i 's/t<1024?this\.alerte=!0/t<600?this.alerte=!0/g' "$JS_FILE"
-
-  # Fehlertexte aller Sprachen patchen
-  sed -i 's/mindestens 1024px/mindestens 600px/g' "$JS_FILE"
-  sed -i 's/at least 1024px/at least 600px/g' "$JS_FILE"
-  sed -i 's/minimale de 1024px/minimale de 600px/g' "$JS_FILE"
-  sed -i 's/mínimo de 1024px/mínimo de 600px/g' "$JS_FILE"
-  sed -i 's/minstens 1024px/minstens 600px/g' "$JS_FILE"
-  sed -i 's/najmanje 1024px/najmanje 600px/g' "$JS_FILE"
-
-  # Prüfen ob Patch erfolgreich
-  if grep -q "t<600?this.alerte" "$JS_FILE"; then
-    echo "[OK] Responsive-Patch erfolgreich angewendet (600px)."
-  else
-    echo "[WARNUNG] Responsive-Patch konnte nicht verifiziert werden – bitte manuell prüfen."
-  fi
-fi
+echo "[INFO] Responsive-Patch ist bereits ins GHCR-Image gebacken."
 
 # Status prüfen
 echo "[INFO] Container-Status:"
