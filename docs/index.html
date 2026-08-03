@@ -81,8 +81,8 @@
     <div class="feature-card"><div class="icon">🐳</div><h3>Single Container</h3><p class="de">Nginx + Vollpaket in einem Image</p><p class="en">Nginx + full package in one image</p></div>
     <div class="feature-card"><div class="icon">📱</div><h3 class="de">Responsive</h3><h3 class="en">Responsive</h3><p class="de">Optimiert für 1920px, 1024px & 860px</p><p class="en">Optimized for 1920px, 1024px & 860px</p></div>
     <div class="feature-card"><div class="icon">🖼️</div><h3 class="de">Eigene Bilder</h3><h3 class="en">Custom Backgrounds</h3><p class="de">Foto in <code>html/assets/custom/</code> legen</p><p class="en">Place image in <code>html/assets/custom/</code></p></div>
-    <div class="feature-card"><div class="icon">🔄</div><h3 class="de">Auto-Update</h3><h3 class="en">Auto-Update</h3><p class="de">Cron baut Image neu, startet Container</p><p class="en">Cron rebuilds image, restarts container</p></div>
-    <div class="feature-card"><div class="icon">🧩</div><h3>Portainer</h3><p class="de">Stack direkt importierbar</p><p class="en">Stack directly importable</p></div>
+    <div class="feature-card"><div class="icon">🔄</div><h3 class="de">Auto-Update</h3><h3 class="en">Auto-Update</h3><p class="de">CI baut Image, Server zieht von GHCR</p><p class="en">CI builds image, server pulls from GHCR</p></div>
+    <div class="feature-card"><div class="icon">🧩</div><h3>Portainer</h3><p class="de">Stack-Image direkt von ghcr.io</p><p class="en">Stack image pulled from ghcr.io</p></div>
     <div class="feature-card"><div class="icon">🦊</div><h3>GitLab Mirror</h3><p class="de">Auto-Push auf Branch <code>github-mirror</code></p><p class="en">Auto-push to branch <code>github-mirror</code></p></div>
   </div>
 
@@ -108,14 +108,14 @@
 cd /opt/digiscreen</pre>
     </div>
     <div class="step">
-      <h3 class="de">Vollpaket herunterladen & entpacken</h3><h3 class="en">Download & extract full package</h3>
-      <pre>wget "https://gitlab.eldshort.de/uivens/digiscreen/-/raw/main/releases/1.0.8/digiscreen_compiled_1.0.8.zip" \
-     -O digiscreen.zip
-unzip digiscreen.zip -d /opt/digiscreen/html</pre>
+      <h3 class="de">Repo klonen (Config, kein Vollpaket nötig)</h3><h3 class="en">Clone repo (config only, no full package)</h3>
+      <pre>git clone https://github.com/jbkunama1/trt.DigiScreen.git /opt/digiscreen
+mkdir -p /opt/digiscreen/html/assets/custom
+cd /opt/digiscreen</pre>
     </div>
     <div class="step">
-      <h3 class="de">Container starten</h3><h3 class="en">Start container</h3>
-      <pre>docker compose up -d --build
+      <h3 class="de">Container starten (Image von GHCR)</h3><h3 class="en">Start container (image from GHCR)</h3>
+      <pre>docker compose up -d
 # http://SERVER_IP:8080</pre>
     </div>
     <div class="step">
@@ -126,11 +126,15 @@ docker compose restart</pre>
   </div>
 
   <!-- CRON -->
-  <h2 class="de">🔄 Auto-Update (Cron)</h2>
-  <h2 class="en">🔄 Auto-Update (Cron)</h2>
+  <h2 class="de">🔄 Auto-Update (GHCR + CI)</h2>
+  <h2 class="en">🔄 Auto-Update (GHCR + CI)</h2>
+  <p class="de">Das Image wird automatisch in GitHub Actions gebaut (Push auf <code>main</code> + wöchentlicher Schedule) und nach <code>ghcr.io/jbkunama1/trt.DigiScreen</code> gepusht. Der Server muss nichts mehr bauen.</p>
+  <p class="en">The image is built automatically in GitHub Actions (push to <code>main</code> + weekly schedule) and pushed to <code>ghcr.io/jbkunama1/trt.DigiScreen</code>. The server only pulls ready-made images.</p>
   <pre>chmod +x /opt/digiscreen/update_digiscreen.sh
 sudo crontab -e
 # 0 3 * * 0 /opt/digiscreen/update_digiscreen.sh >> /var/log/digiscreen-update.log 2>&amp;1</pre>
+  <p class="de">Das Skript macht: <code>git pull</code> → <code>docker pull ghcr.io/…</code> → <code>docker compose up -d</code>.</p>
+  <p class="en">The script does: <code>git pull</code> → <code>docker pull ghcr.io/…</code> → <code>docker compose up -d</code>.</p>
 
   <!-- GITLAB -->
   <h2>🦊 GitLab Mirror</h2>
