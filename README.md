@@ -1,5 +1,9 @@
 # 🖥️ Digiscreen by La Digitale – Self‑Hosted in Docker
 
+<a href="https://www.buymeacoffee.com/highfish">
+<img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee" height="41" width="174">
+</a>
+
 <p align="center">
   <img src="logo_DigiScreen.png" alt="Digiscreen Logo" width="320" />
 </p>
@@ -178,3 +182,4 @@ Das Digiscreen‑Vollpaket unterliegt der **AGPL‑v3‑Lizenz** von Ulrich Iven
   &nbsp;·&nbsp;
   <a href="README_EN.md">🇬🇧 English</a>
 </p>
+
