@@ -1,6 +1,6 @@
 # =============================================================
 # GitHub Actions: Docker Build & Push → GHCR (ghcr.io)
-# Trigger: Push auf main + wöchentlicher Schedule + manuell
+# Trigger: Push auf main + täglicher Schedule (24h-Polling) + manuell
 # Das Digiscreen-Vollpaket wird aus dem offiziellen Release
 # (gitlab.eldshort.de) geladen – NIE aus dem Repo, da html/
 # dort bewusst ausgeschlossen ist (.gitignore).
@@ -17,8 +17,8 @@ on:
       - 'README_EN.md'
       - 'CHANGELOG.md'
   schedule:
-    # Wöchentlich Sonntag 03:30 – prüft auf neue Digiscreen-Releases
-    - cron: '30 3 * * 0'
+    # Täglich 03:30 – prüft auf neue Digiscreen-Releases (24h-Polling)
+    - cron: '30 3 * * *'
   workflow_dispatch:
 
 env:
