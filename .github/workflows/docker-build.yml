@@ -50,9 +50,47 @@ jobs:
           echo "✅ Neueste Version gefunden: $LATEST"
 
       # -----------------------------------------------------
-      # 2. Vollpaket herunterladen & entpacken (in html/)
+      # 2. Docker Buildx Setup + GHCR Login (vor Check nötig)
+      # -----------------------------------------------------
+      - name: ⚙️ Docker Buildx einrichten
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔑 Login bei GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # -----------------------------------------------------
+      # 3. Prüfen ob Version bereits in GHCR existiert
+      #    → bei schedule: skip wenn Tag schon vorhanden
+      #    → bei push/workflow_dispatch: immer bauen
+      # -----------------------------------------------------
+      - name: 🔍 Prüfen ob Version bereits gebaut
+        id: check
+        run: |
+          VERSION="${{ steps.latest.outputs.version }}"
+          IMAGE="${{ env.REGISTRY }}/${{ github.repository }}:$VERSION"
+          echo "Prüfe $IMAGE ..."
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            if docker buildx imagetools inspect "$IMAGE" >/dev/null 2>&1; then
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              echo "⏭️ Version $VERSION bereits in GHCR – Build wird übersprungen."
+            else
+              echo "skip=false" >> "$GITHUB_OUTPUT"
+              echo "🚀 Neue Version $VERSION – Build wird gestartet."
+            fi
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "🔨 Event ${{ github.event_name }} – Build erzwungen."
+          fi
+
+      # -----------------------------------------------------
+      # 4. Vollpaket herunterladen & entpacken (in html/)
       # -----------------------------------------------------
       - name: 📦 Digiscreen-Vollpaket ${{ steps.latest.outputs.version }} laden
+        if: steps.check.outputs.skip != 'true'
         run: |
           VERSION="${{ steps.latest.outputs.version }}"
           ZIP_URL="${{ env.UPSTREAM_BASE }}/-/raw/main/releases/${VERSION}/digiscreen_compiled_${VERSION}.zip"
@@ -67,11 +105,10 @@ jobs:
           ls html | head
 
       # -----------------------------------------------------
-      # 3. Responsive-Patch (1024px → 600px) ins Image backen
-      #    Das ersetzt den bisherigen Laufzeit-Patch aus
-      #    update_digiscreen.sh – kein Patch mehr auf dem Server!
+      # 5. Responsive-Patch (1024px → 600px) ins Image backen
       # -----------------------------------------------------
       - name: 🔧 Responsive-Patch anwenden (1024px → 600px)
+        if: steps.check.outputs.skip != 'true'
         run: |
           JS_FILE=$(find html/static/assets/ -name "index-*.js" ! -name "*.bak" 2>/dev/null | head -1)
           if [ -z "$JS_FILE" ]; then
@@ -93,23 +130,11 @@ jobs:
           fi
 
       # -----------------------------------------------------
-      # 4. Docker Buildx Setup + GHCR Login
-      # -----------------------------------------------------
-      - name: ⚙️ Docker Buildx einrichten
-        uses: docker/setup-buildx-action@v3
-
-      - name: 🔑 Login bei GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      # -----------------------------------------------------
-      # 5. Tags: latest + Digiscreen-Version + Commit-SHA
+      # 6. Tags: latest + Digiscreen-Version + Commit-SHA
       # -----------------------------------------------------
       - name: 🏷️ Image-Metadaten (Tags/Labels)
         id: meta
+        if: steps.check.outputs.skip != 'true'
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository }}
@@ -119,9 +144,10 @@ jobs:
             type=sha
 
       # -----------------------------------------------------
-      # 6. Build & Push nach GHCR
+      # 7. Build & Push nach GHCR
       # -----------------------------------------------------
       - name: 🚀 Build & Push
+        if: steps.check.outputs.skip != 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -134,7 +160,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       # -----------------------------------------------------
-      # 7. Status-Zusammenfassung
+      # 8. Status-Zusammenfassung
       # -----------------------------------------------------
       - name: 📊 Zusammenfassung
         if: always()
@@ -144,4 +170,9 @@ jobs:
           echo "Digiscreen : ${{ steps.latest.outputs.version }}"
           echo "Ausgelöst  : ${{ github.event_name }}"
           echo "Commit SHA : ${{ github.sha }}"
+          if [ "${{ steps.check.outputs.skip }}" = "true" ]; then
+            echo "Status     : ⏭️ Übersprungen (Version unverändert)"
+          else
+            echo "Status     : 🚀 Gebaut & gepusht"
+          fi
           echo "====================================="
