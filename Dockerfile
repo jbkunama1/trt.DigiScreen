@@ -20,5 +20,8 @@ WORKDIR /usr/share/nginx/html
 # (vom GitHub-Actions-Workflow vorab heruntergeladen & gepatcht)
 COPY html/ .
 
+# Nginx-Konfiguration (injiziert custom.css) fest ins Image einbauen
+COPY nginx-custom.conf /etc/nginx/conf.d/default.conf
+
 # Nginx lauscht auf Port 80
 EXPOSE 80

@@ -3,6 +3,8 @@
 # Portainer-kompatibel | DietPi / Debian
 # Image wird von GHCR (ghcr.io) gezogen – kein lokaler Build!
 # Neues Image erscheint automatisch bei jedem Push auf main.
+# nginx-Config und Custom-Assets sind im Image enthalten –
+# keine Bind-Mounts auf Repo-Dateien noetig.
 # =============================================================
 version: '3.8'
 
@@ -17,11 +19,6 @@ services:
     ports:
       - "8080:80"         # Anpassen: z.B. "80:80" oder hinter Traefik/Proxy
     volumes:
-      # Custom-Hintergrundbilder (dauerhaft auf dem Server, überschreiben Originals)
-      # → Hier einfach deine Bilder in ./html/assets/custom/ legen, Container neustarten.
-      - ./html/assets/custom:/usr/share/nginx/html/assets/custom:ro
-      # Nginx Sub-Filter: injiziert custom.css für Responsive-Fix
-      - ./nginx-custom.conf:/etc/nginx/conf.d/default.conf:ro
       - /etc/localtime:/etc/localtime:ro
     labels:
       - "com.digiscreen.description=Digiscreen by La Digitale"
