@@ -10,9 +10,6 @@ version: '3.8'
 
 services:
   digiscreen:
-    # Automatisch gebautes Image aus dem GitHub Container Registry
-    # (Workflow: .github/workflows/docker-build.yml)
-    # WICHTIG: Image-Namen muessen komplett kleingeschrieben sein!
     image: ghcr.io/jbkunama1/trt.digiscreen:latest
     container_name: digiscreen
     restart: unless-stopped
