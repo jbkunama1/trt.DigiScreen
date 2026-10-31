@@ -20,8 +20,8 @@ services:
       retries: 3
       start_period: 60s
     networks:
-      - digiscreen_net
+      - highfishNetwork
 
 networks:
-  digiscreen_net:
-    driver: bridge
+  highfishNetwork:
+    external: true
