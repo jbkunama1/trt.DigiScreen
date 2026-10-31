@@ -20,15 +20,16 @@ services:
       - "8080:80"         # Anpassen: z.B. "80:80" oder hinter Traefik/Proxy
     volumes:
       - /etc/localtime:/etc/localtime:ro
+          - ./html/assets/custom:/usr/share/nginx/html/assets/custom:ro
     labels:
       - "com.digiscreen.description=Digiscreen by La Digitale"
       - "com.digiscreen.maintainer=therealteacher"
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
+          test: ["CMD", "curl", "-f", "http://localhost/"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+          start_period: 60s
     networks:
       - digiscreen_net
 
