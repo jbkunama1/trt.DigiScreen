@@ -1,22 +1,24 @@
+version: '3.8'
+
 services:
   digiscreen:
     image: ghcr.io/jbkunama1/trt.digiscreen:latest
     container_name: digiscreen
     restart: unless-stopped
     ports:
-      - "8080:80"         # Anpassen: z.B. "80:80" oder hinter Traefik/Proxy
+      - "8080:80"
     volumes:
       - /etc/localtime:/etc/localtime:ro
-                - ./html/assets/custom:/usr/share/nginx/html/assets/custom:ro
+      - ./html/assets/custom:/usr/share/nginx/html/assets/custom:ro
     labels:
       - "com.digiscreen.description=Digiscreen by La Digitale"
       - "com.digiscreen.maintainer=therealteacher"
     healthcheck:
-                test: ["CMD", "curl", "-f", "http://localhost/"]
+      test: ["CMD", "curl", "-f", "http://localhost/"]
       interval: 30s
       timeout: 10s
       retries: 3
-                start_period: 60s
+      start_period: 60s
     networks:
       - digiscreen_net
 
