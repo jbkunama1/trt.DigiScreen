@@ -20,7 +20,7 @@ services:
       - "8080:80"         # Anpassen: z.B. "80:80" oder hinter Traefik/Proxy
     volumes:
       - /etc/localtime:/etc/localtime:ro
-          - ./html/assets/custom:/usr/share/nginx/html/assets/custom:ro
+            - ./html/assets/custom:/usr/share/nginx/html/assets/custom:ro
     labels:
       - "com.digiscreen.description=Digiscreen by La Digitale"
       - "com.digiscreen.maintainer=therealteacher"
