@@ -1,13 +1,3 @@
-# =============================================================
-# Digiscreen by La Digitale – Docker Compose Stack
-# Portainer-kompatibel | DietPi / Debian
-# Image wird von GHCR (ghcr.io) gezogen – kein lokaler Build!
-# Neues Image erscheint automatisch bei jedem Push auf main.
-# nginx-Config und Custom-Assets sind im Image enthalten –
-# keine Bind-Mounts auf Repo-Dateien noetig.
-# =============================================================
-version: '3.8'
-
 services:
   digiscreen:
     image: ghcr.io/jbkunama1/trt.digiscreen:latest
